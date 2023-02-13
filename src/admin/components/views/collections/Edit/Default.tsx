@@ -1,0 +1,292 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import format from 'date-fns/format';
+import { useTranslation } from 'react-i18next';
+import { useConfig } from '../../../utilities/Config';
+import Eyebrow from '../../../elements/Eyebrow';
+import Form from '../../../forms/Form';
+import Loading from '../../../elements/Loading';
+import PreviewButton from '../../../elements/PreviewButton';
+import FormSubmit from '../../../forms/Submit';
+import RenderFields from '../../../forms/RenderFields';
+import CopyToClipboard from '../../../elements/CopyToClipboard';
+import DuplicateDocument from '../../../elements/DuplicateDocument';
+import DeleteDocument from '../../../elements/DeleteDocument';
+import Meta from '../../../utilities/Meta';
+import fieldTypes from '../../../forms/field-types';
+import RenderTitle from '../../../elements/RenderTitle';
+import LeaveWithoutSaving from '../../../modals/LeaveWithoutSaving';
+import Auth from './Auth';
+import VersionsCount from '../../../elements/VersionsCount';
+import Upload from './Upload';
+import { Props } from './types';
+import Autosave from '../../../elements/Autosave';
+import Status from '../../../elements/Status';
+import Publish from '../../../elements/Publish';
+import SaveDraft from '../../../elements/SaveDraft';
+import { useDocumentInfo } from '../../../utilities/DocumentInfo';
+import { OperationContext } from '../../../utilities/OperationProvider';
+import { Gutter } from '../../../elements/Gutter';
+import { getTranslation } from '../../../../../utilities/getTranslation';
+import { SetStepNav } from './SetStepNav';
+
+import './index.scss';
+
+const baseClass = 'collection-edit';
+
+const DefaultEditView: React.FC<Props> = (props) => {
+  const { admin: { dateFormat }, routes: { admin } } = useConfig();
+  const { publishedDoc } = useDocumentInfo();
+  const { t, i18n } = useTranslation('general');
+
+  const {
+    collection,
+    isEditing,
+    data,
+    onSave,
+    permissions,
+    isLoading,
+    initialState,
+    apiURL,
+    action,
+    hasSavePermission,
+    disableEyebrow,
+    disableActions,
+    disableLeaveWithoutSaving,
+    customHeader,
+    id,
+  } = props;
+
+  const {
+    slug,
+    fields,
+    admin: {
+      useAsTitle,
+      disableDuplicate,
+      preview,
+      hideAPIURL,
+    },
+    versions,
+    timestamps,
+    auth,
+    upload,
+  } = collection;
+
+  const classes = [
+    baseClass,
+    isEditing && `${baseClass}--is-editing`,
+  ].filter(Boolean).join(' ');
+
+  const operation = isEditing ? 'update' : 'create';
+
+  return (
+    <div className={classes}>
+      {isLoading && (
+        <Loading />
+      )}
+      {!isLoading && (
+        <OperationContext.Provider value={operation}>
+          <Form
+            className={`${baseClass}__form`}
+            method={id ? 'patch' : 'post'}
+            action={action}
+            onSuccess={onSave}
+            disabled={!hasSavePermission}
+            initialState={initialState}
+          >
+            <SetStepNav
+              collection={collection}
+              isEditing={isEditing}
+              id={data.id}
+            />
+            <div className={`${baseClass}__main`}>
+              <Meta
+                title={`${isEditing ? t('editing') : t('creating')} - ${getTranslation(collection.labels.singular, i18n)}`}
+                description={`${isEditing ? t('editing') : t('creating')} - ${getTranslation(collection.labels.singular, i18n)}`}
+                keywords={`${getTranslation(collection.labels.singular, i18n)}, Payload, CMS`}
+              />
+              {!disableEyebrow && (
+                <Eyebrow />
+              )}
+              {(!(collection.versions?.drafts && collection.versions?.drafts?.autosave) && !disableLeaveWithoutSaving) && (
+                <LeaveWithoutSaving />
+              )}
+              <Gutter className={`${baseClass}__edit`}>
+                <header className={`${baseClass}__header`}>
+                  {customHeader && customHeader}
+                  {!customHeader && (
+                    <h1>
+                      <RenderTitle {...{ data, useAsTitle, fallback: `[${t('untitled')}]` }} />
+                    </h1>
+                  )}
+                </header>
+                {auth && (
+                  <Auth
+                    useAPIKey={auth.useAPIKey}
+                    requirePassword={!isEditing}
+                    verify={auth.verify}
+                    collection={collection}
+                    email={data?.email}
+                    operation={operation}
+                  />
+                )}
+                {upload && (
+                  <Upload
+                    data={data}
+                    collection={collection}
+                  />
+                )}
+                <RenderFields
+                  readOnly={!hasSavePermission}
+                  permissions={permissions.fields}
+                  filter={(field) => (!field?.admin?.position || (field?.admin?.position !== 'sidebar'))}
+                  fieldTypes={fieldTypes}
+                  fieldSchema={fields}
+                />
+              </Gutter>
+            </div>
+            <div className={`${baseClass}__sidebar-wrap`}>
+              <div className={`${baseClass}__sidebar`}>
+                <div className={`${baseClass}__sidebar-sticky-wrap`}>
+                  {!disableActions && (
+                    <ul className={`${baseClass}__collection-actions`}>
+                      {(permissions?.create?.permission) && (
+                        <React.Fragment>
+                          <li>
+                            <Link
+                              id="action-create"
+                              to={`${admin}/collections/${slug}/create`}
+                            >
+                              {t('createNew')}
+                            </Link>
+                          </li>
+                          {!disableDuplicate && isEditing && (
+                            <li>
+                              <DuplicateDocument
+                                collection={collection}
+                                id={id}
+                                slug={slug}
+                              />
+                            </li>
+                          )}
+                        </React.Fragment>
+                      )}
+                      {permissions?.delete?.permission && (
+                        <li>
+                          <DeleteDocument
+                            collection={collection}
+                            id={id}
+                            buttonId="action-delete"
+                          />
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                  <div className={`${baseClass}__document-actions${((collection.versions?.drafts && !collection.versions?.drafts?.autosave) || (isEditing && preview)) ? ` ${baseClass}__document-actions--has-2` : ''}`}>
+                    {(preview && (!collection.versions?.drafts || collection.versions?.drafts?.autosave)) && (
+                      <PreviewButton
+                        generatePreviewURL={preview}
+                        data={data}
+                      />
+                    )}
+                    {hasSavePermission && (
+                      <React.Fragment>
+                        {collection.versions?.drafts && (
+                          <React.Fragment>
+                            {!collection.versions.drafts.autosave && (
+                              <SaveDraft />
+                            )}
+                            <Publish />
+                          </React.Fragment>
+                        )}
+                        {!collection.versions?.drafts && (
+                          <FormSubmit buttonId="action-save">{t('save')}</FormSubmit>
+                        )}
+                      </React.Fragment>
+                    )}
+                  </div>
+                  <div className={`${baseClass}__sidebar-fields`}>
+                    {(isEditing && preview && (collection.versions?.drafts && !collection.versions?.drafts?.autosave)) && (
+                      <PreviewButton
+                        generatePreviewURL={preview}
+                        data={data}
+                      />
+                    )}
+                    {collection.versions?.drafts && (
+                      <React.Fragment>
+                        <Status />
+                        {(collection.versions?.drafts.autosave && hasSavePermission) && (
+                          <Autosave
+                            publishedDocUpdatedAt={publishedDoc?.updatedAt || data?.createdAt}
+                            collection={collection}
+                            id={id}
+                          />
+                        )}
+                      </React.Fragment>
+                    )}
+                    <RenderFields
+                      readOnly={!hasSavePermission}
+                      permissions={permissions.fields}
+                      filter={(field) => field?.admin?.position === 'sidebar'}
+                      fieldTypes={fieldTypes}
+                      fieldSchema={fields}
+                    />
+                  </div>
+                  {
+                    isEditing && (
+                      <ul className={`${baseClass}__meta`}>
+                        {!hideAPIURL && (
+                          <li className={`${baseClass}__api-url`}>
+                            <span className={`${baseClass}__label`}>
+                              API URL
+                              {' '}
+                              <CopyToClipboard value={apiURL} />
+                            </span>
+                            <a
+                              href={apiURL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {apiURL}
+                            </a>
+                          </li>
+                        )}
+                        {versions && (
+                          <li>
+                            <div className={`${baseClass}__label`}>{t('version:versions')}</div>
+                            <VersionsCount
+                              collection={collection}
+                              id={id}
+                            />
+                          </li>
+                        )}
+                        {timestamps && (
+                          <React.Fragment>
+                            {data.updatedAt && (
+                              <li>
+                                <div className={`${baseClass}__label`}>{t('lastModified')}</div>
+                                <div>{format(new Date(data.updatedAt), dateFormat)}</div>
+                              </li>
+                            )}
+                            {(publishedDoc?.createdAt || data?.createdAt) && (
+                              <li>
+                                <div className={`${baseClass}__label`}>{t('created')}</div>
+                                <div>{format(new Date(publishedDoc?.createdAt || data?.createdAt), dateFormat)}</div>
+                              </li>
+                            )}
+                          </React.Fragment>
+                        )}
+                      </ul>
+                    )
+                  }
+                </div>
+              </div>
+            </div>
+          </Form>
+        </OperationContext.Provider>
+      )}
+    </div>
+  );
+};
+
+export default DefaultEditView;
