@@ -1,16 +1,25 @@
-import mongoose, { SchemaType } from 'mongoose';
-import { createArrayFromCommaDelineated } from './createArrayFromCommaDelineated';
-import { getSchemaTypeOptions } from './getSchemaTypeOptions';
-import wordBoundariesRegex from '../utilities/wordBoundariesRegex';
+import mongoose, { SchemaType } from "mongoose";
+import { createArrayFromCommaDelineated } from "./createArrayFromCommaDelineated";
+import { getSchemaTypeOptions } from "./getSchemaTypeOptions";
+import wordBoundariesRegex from "../utilities/wordBoundariesRegex";
 
-export const sanitizeQueryValue = (schemaType: SchemaType, path: string, operator: string, val: any): unknown => {
+export const sanitizeQueryValue = (
+  schemaType: SchemaType,
+  path: string,
+  operator: string,
+  val: any
+): unknown => {
   let formattedValue = val;
   const schemaOptions = getSchemaTypeOptions(schemaType);
 
   // Disregard invalid _ids
 
-  if (path === '_id' && typeof val === 'string' && val.split(',').length === 1) {
-    if (schemaType?.instance === 'ObjectID') {
+  if (
+    path === "_id" &&
+    typeof val === "string" &&
+    val.split(",").length === 1
+  ) {
+    if (schemaType?.instance === "ObjectID") {
       const isValid = mongoose.Types.ObjectId.isValid(val);
 
       if (!isValid) {
@@ -18,7 +27,7 @@ export const sanitizeQueryValue = (schemaType: SchemaType, path: string, operato
       }
     }
 
-    if (schemaType?.instance === 'Number') {
+    if (schemaType?.instance === "Number") {
       const parsedNumber = parseFloat(val);
 
       if (Number.isNaN(parsedNumber)) {
@@ -29,22 +38,22 @@ export const sanitizeQueryValue = (schemaType: SchemaType, path: string, operato
 
   // Cast incoming values as proper searchable types
 
-  if (schemaType?.instance === 'Boolean' && typeof val === 'string') {
-    if (val.toLowerCase() === 'true') formattedValue = true;
-    if (val.toLowerCase() === 'false') formattedValue = false;
+  if (schemaType?.instance === "Boolean" && typeof val === "string") {
+    if (val.toLowerCase() === "true") formattedValue = true;
+    if (val.toLowerCase() === "false") formattedValue = false;
   }
 
-  if (schemaType?.instance === 'Number' && typeof val === 'string') {
+  if (schemaType?.instance === "Number" && typeof val === "string") {
     formattedValue = Number(val);
   }
 
-  if ((schemaOptions?.ref || schemaOptions?.refPath) && val === 'null') {
+  if ((schemaOptions?.ref || schemaOptions?.refPath) && val === "null") {
     formattedValue = null;
   }
 
   // Set up specific formatting necessary by operators
 
-  if (operator === 'near') {
+  if (operator === "near") {
     let lng;
     let lat;
     let maxDistance;
@@ -54,15 +63,19 @@ export const sanitizeQueryValue = (schemaType: SchemaType, path: string, operato
       [lng, lat, maxDistance, minDistance] = formattedValue;
     }
 
-    if (typeof formattedValue === 'string') {
-      [lng, lat, maxDistance, minDistance] = createArrayFromCommaDelineated(formattedValue);
+    if (typeof formattedValue === "string") {
+      [lng, lat, maxDistance, minDistance] =
+        createArrayFromCommaDelineated(formattedValue);
     }
 
     if (!lng || !lat || (!maxDistance && !minDistance)) {
       formattedValue = undefined;
     } else {
       formattedValue = {
-        $geometry: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
+        $geometry: {
+          type: "Point",
+          coordinates: [parseFloat(lng), parseFloat(lat)],
+        },
       };
 
       if (maxDistance) formattedValue.$maxDistance = parseFloat(maxDistance);
@@ -70,40 +83,45 @@ export const sanitizeQueryValue = (schemaType: SchemaType, path: string, operato
     }
   }
 
-  if (['all', 'not_in', 'in'].includes(operator) && typeof formattedValue === 'string') {
+  if (
+    ["all", "not_in", "in"].includes(operator) &&
+    typeof formattedValue === "string"
+  ) {
     formattedValue = createArrayFromCommaDelineated(formattedValue);
   }
 
-  if (schemaOptions && (schemaOptions.ref || schemaOptions.refPath) && operator === 'in') {
+  if (
+    schemaOptions &&
+    (schemaOptions.ref || schemaOptions.refPath) &&
+    operator === "in"
+  ) {
     if (Array.isArray(formattedValue)) {
       formattedValue = formattedValue.reduce((formattedValues, inVal) => {
         const newValues = [inVal];
-        if (mongoose.Types.ObjectId.isValid(inVal)) newValues.push(new mongoose.Types.ObjectId(inVal));
+        if (mongoose.Types.ObjectId.isValid(inVal))
+          newValues.push(new mongoose.Types.ObjectId(inVal));
 
         const parsedNumber = parseFloat(inVal);
         if (!Number.isNaN(parsedNumber)) newValues.push(parsedNumber);
 
-        return [
-          ...formattedValues,
-          ...newValues,
-        ];
+        return [...formattedValues, ...newValues];
       }, []);
     }
   }
 
-  if (path !== '_id') {
-    if (operator === 'contains') {
-      formattedValue = { $regex: formattedValue, $options: 'i' };
+  if (path !== "_id") {
+    if (operator === "contains") {
+      formattedValue = { $regex: formattedValue, $options: "i" };
     }
 
-    if (operator === 'like' && typeof formattedValue === 'string') {
+    if (operator === "like" && typeof formattedValue === "string") {
       const $regex = wordBoundariesRegex(formattedValue);
       formattedValue = { $regex };
     }
   }
 
-  if (operator === 'exists') {
-    formattedValue = (formattedValue === 'true' || formattedValue === true);
+  if (operator === "exists") {
+    formattedValue = formattedValue === "true" || formattedValue === true;
   }
 
   return formattedValue;

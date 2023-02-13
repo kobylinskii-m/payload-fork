@@ -14,6 +14,8 @@ import { getTextFieldsToBeSearched } from './getTextFieldsToBeSearched';
 import { getTranslation } from '../../../../utilities/getTranslation';
 
 import './index.scss';
+import { useConfig } from '../../utilities/Config';
+import appendFields from '../../../../utilities/appendRelationshipFields';
 
 const baseClass = 'list-controls';
 
@@ -40,7 +42,9 @@ const ListControls: React.FC<Props> = (props) => {
   const shouldInitializeWhereOpened = validateWhereQuery(params?.where);
 
   const [titleField] = useState(() => fields.find((field) => fieldAffectsData(field) && field.name === useAsTitle));
-  const [textFieldsToBeSearched] = useState(getTextFieldsToBeSearched(listSearchableFields, fields));
+
+  const config = useConfig();
+  const [textFieldsToBeSearched] = useState(getTextFieldsToBeSearched(listSearchableFields, appendFields(config.collections, fields)));
   const [visibleDrawer, setVisibleDrawer] = useState<'where' | 'sort' | 'columns'>(shouldInitializeWhereOpened ? 'where' : undefined);
   const { t, i18n } = useTranslation('general');
 

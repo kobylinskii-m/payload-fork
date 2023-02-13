@@ -40,18 +40,18 @@ const SearchFilter: React.FC<Props> = (props) => {
     fieldNamesToSearch.forEach((fieldNameToSearch) => {
       const hasOrQuery = Array.isArray(newWhere.or);
       const existingFieldSearchIndex = hasOrQuery ? newWhere.or.findIndex((condition) => {
-        return (condition?.[fieldNameToSearch] as WhereField)?.like;
+        return (condition?.[fieldNameToSearch] as WhereField)?.contains;
       }) : -1;
 
       if (debouncedSearch) {
         if (!hasOrQuery) newWhere.or = [];
 
         if (existingFieldSearchIndex > -1) {
-          (newWhere.or[existingFieldSearchIndex][fieldNameToSearch] as WhereField).like = debouncedSearch;
+          (newWhere.or[existingFieldSearchIndex][fieldNameToSearch] as WhereField).contains = debouncedSearch;
         } else {
           newWhere.or.push({
             [fieldNameToSearch]: {
-              like: debouncedSearch,
+              contains: debouncedSearch,
             },
           });
         }

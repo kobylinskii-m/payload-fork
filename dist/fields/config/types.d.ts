@@ -1,14 +1,14 @@
-import { CSSProperties } from 'react';
-import { Editor } from 'slate';
-import type { TFunction } from 'i18next';
-import { Operation, Where } from '../../types';
-import { TypeWithID } from '../../collections/config/types';
-import { PayloadRequest } from '../../express/types';
-import { ConditionalDateProps } from '../../admin/components/elements/DatePicker/types';
-import { Description } from '../../admin/components/forms/FieldDescription/types';
-import { User } from '../../auth';
-import { Payload } from '../..';
-import { RowLabel } from '../../admin/components/forms/RowLabel/types';
+import { CSSProperties } from "react";
+import { Editor } from "slate";
+import type { TFunction } from "i18next";
+import { Operation, Where } from "../../types";
+import { TypeWithID } from "../../collections/config/types";
+import { PayloadRequest } from "../../express/types";
+import { ConditionalDateProps } from "../../admin/components/elements/DatePicker/types";
+import { Description } from "../../admin/components/forms/FieldDescription/types";
+import { User } from "../../auth";
+import { Payload } from "../..";
+import { RowLabel } from "../../admin/components/forms/RowLabel/types";
 export declare type FieldHookArgs<T extends TypeWithID = any, P = any, S = any> = {
     /** The data passed to update the document within create and update operations, and the full document itself in the afterRead hook. */
     data?: Partial<T>;
@@ -21,7 +21,7 @@ export declare type FieldHookArgs<T extends TypeWithID = any, P = any, S = any> 
     /** The sibling data from the previous document in `afterChange` hook. */
     previousSiblingDoc?: T;
     /** A string relating to which operation the field type is currently executing within. Useful within beforeValidate, beforeChange, and afterChange hooks to differentiate between create and update operations. */
-    operation?: 'create' | 'read' | 'update' | 'delete';
+    operation?: "create" | "read" | "update" | "delete";
     /** The Express request object. It is mocked for Local API operations. */
     req: PayloadRequest;
     /** The sibling data passed to a field that the hook is running against. */
@@ -48,7 +48,7 @@ export declare type FilterOptionsProps<T = any> = {
 };
 export declare type FilterOptions<T = any> = Where | ((options: FilterOptionsProps<T>) => Where);
 declare type Admin = {
-    position?: 'sidebar';
+    position?: "sidebar";
     width?: string;
     style?: CSSProperties;
     className?: string;
@@ -107,7 +107,7 @@ export interface FieldBase {
     };
 }
 export declare type NumberField = FieldBase & {
-    type: 'number';
+    type: "number";
     admin?: Admin & {
         autoComplete?: string;
         placeholder?: Record<string, string> | string;
@@ -117,7 +117,7 @@ export declare type NumberField = FieldBase & {
     max?: number;
 };
 export declare type TextField = FieldBase & {
-    type: 'text';
+    type: "text";
     maxLength?: number;
     minLength?: number;
     admin?: Admin & {
@@ -126,14 +126,14 @@ export declare type TextField = FieldBase & {
     };
 };
 export declare type EmailField = FieldBase & {
-    type: 'email';
+    type: "email";
     admin?: Admin & {
         placeholder?: Record<string, string> | string;
         autoComplete?: string;
     };
 };
 export declare type TextareaField = FieldBase & {
-    type: 'textarea';
+    type: "textarea";
     maxLength?: number;
     minLength?: number;
     admin?: Admin & {
@@ -142,54 +142,54 @@ export declare type TextareaField = FieldBase & {
     };
 };
 export declare type CheckboxField = FieldBase & {
-    type: 'checkbox';
+    type: "checkbox";
 };
 export declare type DateField = FieldBase & {
-    type: 'date';
+    type: "date";
     admin?: Admin & {
         placeholder?: Record<string, string> | string;
         date?: ConditionalDateProps;
     };
 };
 export declare type GroupField = FieldBase & {
-    type: 'group';
+    type: "group";
     fields: Field[];
     admin?: Admin & {
         hideGutter?: boolean;
     };
 };
-export declare type RowAdmin = Omit<Admin, 'description'>;
-export declare type RowField = Omit<FieldBase, 'admin' | 'name'> & {
+export declare type RowAdmin = Omit<Admin, "description">;
+export declare type RowField = Omit<FieldBase, "admin" | "name"> & {
     admin?: RowAdmin;
-    type: 'row';
+    type: "row";
     fields: Field[];
 };
-export declare type CollapsibleField = Omit<FieldBase, 'name' | 'label'> & {
-    type: 'collapsible';
+export declare type CollapsibleField = Omit<FieldBase, "name" | "label"> & {
+    type: "collapsible";
     label: RowLabel;
     fields: Field[];
     admin?: Admin & {
         initCollapsed?: boolean | false;
     };
 };
-export declare type TabsAdmin = Omit<Admin, 'description'>;
+export declare type TabsAdmin = Omit<Admin, "description">;
 declare type TabBase = {
     fields: Field[];
     description?: Description;
 };
 export declare type NamedTab = TabBase & FieldBase;
-export declare type UnnamedTab = TabBase & Omit<FieldBase, 'name'> & {
+export declare type UnnamedTab = TabBase & Omit<FieldBase, "name"> & {
     label: Record<string, string> | string;
     localized?: never;
 };
 export declare type Tab = NamedTab | UnnamedTab;
-export declare type TabsField = Omit<FieldBase, 'admin' | 'name' | 'localized'> & {
-    type: 'tabs';
+export declare type TabsField = Omit<FieldBase, "admin" | "name" | "localized"> & {
+    type: "tabs";
     tabs: Tab[];
     admin?: TabsAdmin;
 };
 export declare type TabAsField = Tab & {
-    type: 'tab';
+    type: "tab";
     name?: string;
 };
 export declare type UIField = {
@@ -205,10 +205,10 @@ export declare type UIField = {
             Field: React.ComponentType<any>;
         };
     };
-    type: 'ui';
+    type: "ui";
 };
 export declare type UploadField = FieldBase & {
-    type: 'upload';
+    type: "upload";
     relationTo: string;
     maxDepth?: number;
     filterOptions?: FilterOptions;
@@ -216,14 +216,14 @@ export declare type UploadField = FieldBase & {
 declare type CodeAdmin = Admin & {
     language?: string;
 };
-export declare type CodeField = Omit<FieldBase, 'admin'> & {
+export declare type CodeField = Omit<FieldBase, "admin"> & {
     admin?: CodeAdmin;
     minLength?: number;
     maxLength?: number;
-    type: 'code';
+    type: "code";
 };
 export declare type SelectField = FieldBase & {
-    type: 'select';
+    type: "select";
     options: Option[];
     hasMany?: boolean;
     admin?: Admin & {
@@ -232,7 +232,7 @@ export declare type SelectField = FieldBase & {
     };
 };
 export declare type RelationshipField = FieldBase & {
-    type: 'relationship';
+    type: "relationship";
     relationTo: string | string[];
     hasMany?: boolean;
     maxDepth?: number;
@@ -240,6 +240,9 @@ export declare type RelationshipField = FieldBase & {
     admin?: Admin & {
         isSortable?: boolean;
     };
+};
+export declare type SearchableRelationshipField = RelationshipField & {
+    fields?: Field[];
 };
 export declare type ValueWithRelation = {
     relationTo: string;
@@ -260,10 +263,10 @@ export declare type RichTextCustomLeaf = {
     Leaf: React.ComponentType<any>;
     plugins?: RichTextPlugin[];
 };
-export declare type RichTextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote' | 'ul' | 'ol' | 'link' | 'relationship' | 'upload' | 'indent' | RichTextCustomElement;
-export declare type RichTextLeaf = 'bold' | 'italic' | 'underline' | 'strikethrough' | 'code' | RichTextCustomLeaf;
+export declare type RichTextElement = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote" | "ul" | "ol" | "link" | "relationship" | "upload" | "indent" | RichTextCustomElement;
+export declare type RichTextLeaf = "bold" | "italic" | "underline" | "strikethrough" | "code" | RichTextCustomLeaf;
 export declare type RichTextField = FieldBase & {
-    type: 'richText';
+    type: "richText";
     admin?: Admin & {
         placeholder?: Record<string, string> | string;
         elements?: RichTextElement[];
@@ -282,7 +285,7 @@ export declare type RichTextField = FieldBase & {
     };
 };
 export declare type ArrayField = FieldBase & {
-    type: 'array';
+    type: "array";
     minRows?: number;
     maxRows?: number;
     labels?: Labels;
@@ -291,14 +294,14 @@ export declare type ArrayField = FieldBase & {
         initCollapsed?: boolean | false;
         components?: {
             RowLabel?: RowLabel;
-        } & Admin['components'];
+        } & Admin["components"];
     };
 };
 export declare type RadioField = FieldBase & {
-    type: 'radio';
+    type: "radio";
     options: Option[];
     admin?: Admin & {
-        layout?: 'horizontal' | 'vertical';
+        layout?: "horizontal" | "vertical";
     };
 };
 export declare type Block = {
@@ -312,7 +315,7 @@ export declare type Block = {
     };
 };
 export declare type BlockField = FieldBase & {
-    type: 'blocks';
+    type: "blocks";
     minRows?: number;
     maxRows?: number;
     blocks: Block[];
@@ -323,9 +326,10 @@ export declare type BlockField = FieldBase & {
     };
 };
 export declare type PointField = FieldBase & {
-    type: 'point';
+    type: "point";
 };
 export declare type Field = TextField | NumberField | EmailField | TextareaField | CheckboxField | DateField | BlockField | GroupField | RadioField | RelationshipField | ArrayField | RichTextField | SelectField | UploadField | CodeField | PointField | RowField | CollapsibleField | TabsField | UIField;
+export declare type SearchableField = TextField | NumberField | EmailField | TextareaField | CheckboxField | DateField | BlockField | GroupField | RadioField | SearchableRelationshipField | ArrayField | RichTextField | SelectField | UploadField | CodeField | PointField | RowField | CollapsibleField | TabsField | UIField;
 export declare type FieldAffectingData = TextField | NumberField | EmailField | TextareaField | CheckboxField | DateField | BlockField | GroupField | RadioField | RelationshipField | ArrayField | RichTextField | SelectField | UploadField | CodeField | PointField | TabAsField;
 export declare type NonPresentationalField = TextField | NumberField | EmailField | TextareaField | CheckboxField | DateField | BlockField | GroupField | RadioField | RelationshipField | ArrayField | RichTextField | SelectField | UploadField | CodeField | PointField | RowField | TabsField | CollapsibleField;
 export declare type FieldWithPath = Field & {
@@ -347,5 +351,5 @@ export declare function fieldIsPresentationalOnly(field: Field | TabAsField): fi
 export declare function fieldAffectsData(field: Field | TabAsField): field is FieldAffectingData;
 export declare function tabHasName(tab: Tab): tab is NamedTab;
 export declare function fieldIsLocalized(field: Field | Tab): boolean;
-export declare type HookName = 'beforeRead' | 'beforeChange' | 'beforeValidate' | 'afterChange' | 'afterRead';
+export declare type HookName = "beforeRead" | "beforeChange" | "beforeValidate" | "afterChange" | "afterRead";
 export {};

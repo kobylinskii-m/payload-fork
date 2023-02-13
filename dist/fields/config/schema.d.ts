@@ -1,4 +1,4 @@
-import joi from 'joi';
+import joi from "joi";
 export declare const baseAdminComponentFields: joi.ObjectSchema<any>;
 export declare const baseAdminFields: joi.ObjectSchema<any>;
 export declare const baseField: joi.ObjectSchema<any>;

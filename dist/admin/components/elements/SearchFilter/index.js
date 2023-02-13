@@ -24,18 +24,18 @@ const SearchFilter = (props) => {
             const hasOrQuery = Array.isArray(newWhere.or);
             const existingFieldSearchIndex = hasOrQuery ? newWhere.or.findIndex((condition) => {
                 var _a;
-                return (_a = condition === null || condition === void 0 ? void 0 : condition[fieldNameToSearch]) === null || _a === void 0 ? void 0 : _a.like;
+                return (_a = condition === null || condition === void 0 ? void 0 : condition[fieldNameToSearch]) === null || _a === void 0 ? void 0 : _a.contains;
             }) : -1;
             if (debouncedSearch) {
                 if (!hasOrQuery)
                     newWhere.or = [];
                 if (existingFieldSearchIndex > -1) {
-                    newWhere.or[existingFieldSearchIndex][fieldNameToSearch].like = debouncedSearch;
+                    newWhere.or[existingFieldSearchIndex][fieldNameToSearch].contains = debouncedSearch;
                 }
                 else {
                     newWhere.or.push({
                         [fieldNameToSearch]: {
-                            like: debouncedSearch,
+                            contains: debouncedSearch,
                         },
                     });
                 }

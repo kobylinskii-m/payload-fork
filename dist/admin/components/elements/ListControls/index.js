@@ -12,6 +12,8 @@ import validateWhereQuery from '../WhereBuilder/validateWhereQuery';
 import { getTextFieldsToBeSearched } from './getTextFieldsToBeSearched';
 import { getTranslation } from '../../../../utilities/getTranslation';
 import './index.scss';
+import { useConfig } from '../../utilities/Config';
+import appendFields from '../../../../utilities/appendRelationshipFields';
 const baseClass = 'list-controls';
 const ListControls = (props) => {
     var _a;
@@ -19,7 +21,8 @@ const ListControls = (props) => {
     const params = useSearchParams();
     const shouldInitializeWhereOpened = validateWhereQuery(params === null || params === void 0 ? void 0 : params.where);
     const [titleField] = useState(() => fields.find((field) => fieldAffectsData(field) && field.name === useAsTitle));
-    const [textFieldsToBeSearched] = useState(getTextFieldsToBeSearched(listSearchableFields, fields));
+    const config = useConfig();
+    const [textFieldsToBeSearched] = useState(getTextFieldsToBeSearched(listSearchableFields, appendFields(config.collections, fields)));
     const [visibleDrawer, setVisibleDrawer] = useState(shouldInitializeWhereOpened ? 'where' : undefined);
     const { t, i18n } = useTranslation('general');
     return (React.createElement("div", { className: baseClass },
